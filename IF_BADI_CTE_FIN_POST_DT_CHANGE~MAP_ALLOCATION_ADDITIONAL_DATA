@@ -1,0 +1,28 @@
+  METHOD if_badi_cte_fin_post_dt_change~map_allocation_additional_data.
+
+*   Mapping of additional customer data
+*   from CTE Input structure to CTE working structures
+
+*   Local data
+    DATA: lr_struc TYPE REF TO cl_abap_structdescr.
+    DATA: lt_comp TYPE cl_abap_structdescr=>component_table.
+    DATA: ls_comp LIKE LINE OF lt_comp.
+    DATA: ls_allocation_additional_data TYPE cte_s_additional_data.
+    FIELD-SYMBOLS <lfs_field> TYPE any.
+
+*   Get IS_ALLOCATION_DATA structure fields and data
+    lr_struc ?= cl_abap_structdescr=>describe_by_data( is_allocation_data ). "Get the description IS_ALLOCATION_DATA
+    lt_comp = lr_struc->get_components( ). "Get the fields of IS_ALLOCATION_DATA
+
+*   Fill custom fields if not initial and append to export table
+    LOOP AT lt_comp INTO ls_comp.
+      IF ls_comp-name CS 'CUSTOM'.
+        ls_allocation_additional_data-name = ls_comp-name.
+        ASSIGN COMPONENT ls_comp-name OF STRUCTURE is_allocation_data TO <lfs_field>.
+        ls_allocation_additional_data-value = <lfs_field>.
+        APPEND ls_allocation_additional_data TO et_allocation_additional_data.
+        CLEAR ls_allocation_additional_data.
+      ENDIF.
+    ENDLOOP.
+
+  ENDMETHOD.
