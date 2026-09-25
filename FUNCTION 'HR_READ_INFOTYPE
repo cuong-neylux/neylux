@@ -1,0 +1,10 @@
+*    CALL FUNCTION 'HR_READ_INFOTYPE_AUTHC_DISABLE'.
+    CALL FUNCTION 'HR_READ_INFOTYPE'
+      EXPORTING
+        tclas     = 'A'
+        pernr     = gs_data-hdr-pernr
+        infty     = lc_it_0700
+        begda     = gs_data-hdr-begda
+        endda     = gs_data-hdr-endda
+      TABLES
+        infty_tab = lt_p0700.
