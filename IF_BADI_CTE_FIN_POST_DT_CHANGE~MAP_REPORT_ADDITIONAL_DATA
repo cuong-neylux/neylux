@@ -1,0 +1,75 @@
+  METHOD if_badi_cte_fin_post_dt_change~map_report_additional_data.
+*   Mapping of additional customer data
+*   from CTE Input structure to CTE working structures
+
+*   Local data
+    DATA: lr_struc TYPE REF TO cl_abap_structdescr.
+    DATA: lt_comp TYPE cl_abap_structdescr=>component_table.
+    DATA: ls_comp LIKE LINE OF lt_comp.
+    DATA: ls_report_additional_data TYPE cte_s_additional_data.
+    FIELD-SYMBOLS <lfs_field> TYPE any.
+
+*   Get IS_EMPLOYEE_DATA structure fields and data
+    lr_struc ?= cl_abap_structdescr=>describe_by_data( is_employee_data ). "Get the description of is_employee_data
+    lt_comp = lr_struc->get_components( ). "Get the fields of is_employee_data
+
+*   Fill custom fields if not initial and append to export table
+    LOOP AT lt_comp INTO ls_comp.
+      IF ls_comp-name CS 'CUSTOM'.
+        ls_report_additional_data-name = ls_comp-name.
+        ASSIGN COMPONENT ls_comp-name OF STRUCTURE is_employee_data TO <lfs_field>.
+        ls_report_additional_data-value = <lfs_field>.
+        APPEND ls_report_additional_data TO et_report_additional_data.
+        CLEAR ls_report_additional_data.
+      ENDIF.
+    ENDLOOP.
+    LOOP AT lt_comp INTO ls_comp.
+      IF ls_comp-name CS 'ORG_UNIT'.
+        ls_report_additional_data-name = ls_comp-name.
+        ASSIGN COMPONENT ls_comp-name OF STRUCTURE is_employee_data TO <lfs_field>.
+        ls_report_additional_data-value = <lfs_field>.
+        APPEND ls_report_additional_data TO et_report_additional_data.
+        CLEAR ls_report_additional_data.
+      ENDIF.
+    ENDLOOP.
+
+*   Clearing for next step
+    CLEAR lt_comp.
+    CLEAR ls_comp.
+    CLEAR ls_report_additional_data.
+
+*   Get IS_REPORT_DATA structure fields and data
+    lr_struc ?= cl_abap_structdescr=>describe_by_data( is_report_data ). "Get the description of is_report_data
+    lt_comp = lr_struc->get_components( ). "Get the fields of is_report_data
+
+*   Fill custom fields if not initial and append to export table
+    LOOP AT lt_comp INTO ls_comp.
+      IF ls_comp-name CS 'CUSTOM'.
+        ls_report_additional_data-name = ls_comp-name.
+        ASSIGN COMPONENT ls_comp-name OF STRUCTURE is_report_data TO <lfs_field>.
+        ls_report_additional_data-value = <lfs_field>.
+        APPEND ls_report_additional_data TO et_report_additional_data.
+        CLEAR ls_report_additional_data.
+      ENDIF.
+    ENDLOOP.
+    LOOP AT lt_comp INTO ls_comp.
+      IF ls_comp-name CS 'ORG_UNIT'.
+        ls_report_additional_data-name = ls_comp-name.
+        ASSIGN COMPONENT ls_comp-name OF STRUCTURE is_employee_data TO <lfs_field>.
+        ls_report_additional_data-value = <lfs_field>.
+        APPEND ls_report_additional_data TO et_report_additional_data.
+        CLEAR ls_report_additional_data.
+      ENDIF.
+    ENDLOOP.
+
+*   Additionally add employee data (as it is not part of document data)
+    CLEAR ls_report_additional_data.
+    ls_report_additional_data-name = 'EMPLOYEEFIRSTNAME'.
+    ls_report_additional_data-value = is_employee_data-first_name.
+    APPEND ls_report_additional_data TO et_report_additional_data.
+    CLEAR ls_report_additional_data.
+    ls_report_additional_data-name = 'EMPLOYEELASTNAME'.
+    ls_report_additional_data-value = is_employee_data-last_name.
+    APPEND ls_report_additional_data TO et_report_additional_data.
+
+  ENDMETHOD.
